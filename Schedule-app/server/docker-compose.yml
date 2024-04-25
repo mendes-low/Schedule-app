@@ -1,0 +1,44 @@
+version: '3'
+
+services:
+    nginx:
+        image: nginx:latest
+        volumes:
+            - ./:/var/www
+            - ./docker/nginx/conf.d:/etc/nginx/conf.d
+        ports:
+            - "9000:80"
+        depends_on:
+            - app
+        container_name: edu_nginx
+
+    app:
+        build:
+            context: .
+            dockerfile: docker/app/Dockerfile
+        volumes:
+            - ./:/var/www
+        depends_on:
+            - db
+        container_name: edu_app
+    db:
+        image: mysql:8.0
+        restart: always
+        environment:
+            - MYSQL_DATABASE=edu-db
+            - MYSQL_ROOT_PASSWORD=user
+            - MYSQL_USER=user
+            - MYSQL_PASSWORD=user
+        ports:
+            - '3301:3306'
+        container_name: edu_db
+    phpmyadmin:
+        image: phpmyadmin
+        restart: always
+        ports:
+            - '8001:80'
+        depends_on:
+            - db
+        environment:
+            - PMA_ARBITRARY=1
+        container_name: edu_phpmyadmin
